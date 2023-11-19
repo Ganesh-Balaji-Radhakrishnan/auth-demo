@@ -1,6 +1,21 @@
 /* === Imports === */
+import { initializeApp } from "firebase/app"
+import { getAuth,
+         createUserWithEmailAndPassword, signInWithEmailAndPassword} from "firebase/auth"
 
 /* === Firebase Setup === */
+/* IMPORTANT: Replace this with your own firebaseConfig when doing challenges */
+const firebaseConfig = {
+    apiKey: "AIzaSyCeoZ-dVZG7x-mjPaj61J_vUD-7NP5HPsw",
+    authDomain: "moody-bf542.firebaseapp.com",
+    projectId: "moody-bf542",
+    storageBucket: "moody-bf542.appspot.com",
+    messagingSenderId: "526283438785",
+    appId: "1:526283438785:web:4ef8e59b4ded0a6c62b240"
+}
+
+const app = initializeApp(firebaseConfig)
+const auth = getAuth(app)
 
 /* === UI === */
 
@@ -26,7 +41,7 @@ createAccountButtonEl.addEventListener("click", authCreateAccountWithEmail)
 
 /* === Main Code === */
 
-showLoggedInView()
+showLoggedOutView()
 
 /* === Functions === */
 
@@ -38,10 +53,30 @@ function authSignInWithGoogle() {
 
 function authSignInWithEmail() {
     console.log("Sign in with email and password")
+    const email = emailInputEl.value
+    const password = passwordInputEl.value
+
+    signInWithEmailAndPassword(auth, email, password)
+    .then((userCredential) => {
+        const user = userCredential.user;
+        showLoggedInView()
+    })
+    .catch((error) => {
+        console.error(error.message)
+    });
 }
 
 function authCreateAccountWithEmail() {
-    console.log("Sign up with email and password")
+    const email = emailInputEl.value
+    const password = passwordInputEl.value
+
+    createUserWithEmailAndPassword(auth, email, password)
+        .then((userCredential) => {
+            showLoggedInView()
+        })
+        .catch((error) => {
+            console.error(error.message)
+        })
 }
 
 /* == Functions - UI Functions == */
