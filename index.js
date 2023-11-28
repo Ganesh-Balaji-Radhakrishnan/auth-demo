@@ -1,7 +1,13 @@
 /* === Imports === */
 import { initializeApp } from "firebase/app"
 import { getAuth,
-         createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut} from "firebase/auth"
+         createUserWithEmailAndPassword,
+         signInWithEmailAndPassword,
+         signOut,
+         onAuthStateChanged,
+         GoogleAuthProvider,
+         signInWithPopup
+        } from "firebase/auth"
 
 /* === Firebase Setup === */
 /* IMPORTANT: Replace this with your own firebaseConfig when doing challenges */
@@ -11,11 +17,12 @@ const firebaseConfig = {
     projectId: "moody-bf542",
     storageBucket: "moody-bf542.appspot.com",
     messagingSenderId: "526283438785",
-    appId: "1:526283438785:web:4ef8e59b4ded0a6c62b240"
+    appId: '1:526283438785:web:4ef8e59b4ded0a6c62b240'
 }
 
 const app = initializeApp(firebaseConfig)
 const auth = getAuth(app)
+const provider = new GoogleAuthProvider()
 
 /* === UI === */
 
@@ -45,30 +52,38 @@ signOutButtonEl.addEventListener("click", authSignOut)
 
 /* === Main Code === */
 
-showLoggedOutView()
+onAuthStateChanged(auth, (user) => {
+    if (user) {
+        showLoggedInView()
+    } else {
+        showLoggedOutView()
+    }
+})
 
 /* === Functions === */
 
 /* = Functions - Firebase - Authentication = */
 
 function authSignInWithGoogle() {
-    console.log("Sign in with Google")
+    signInWithPopup(auth, provider)
+    .then((result) => {
+        console.log('signed in succesfully')
+    }).catch((error) => {
+        console.error(error.message)
+    });
 }
 
 function authSignInWithEmail() {
-    console.log("Sign in with email and password")
     const email = emailInputEl.value
     const password = passwordInputEl.value
-
+    
     signInWithEmailAndPassword(auth, email, password)
-    .then((userCredential) => {
-        const user = userCredential.user;
-        clearAuthFields()
-        showLoggedInView()
-    })
-    .catch((error) => {
-        console.error(error.message)
-    });
+        .then((userCredential) => {
+            clearAuthFields()
+        })
+        .catch((error) => {
+            console.error(error.message)
+        })
 }
 
 function authCreateAccountWithEmail() {
@@ -78,23 +93,21 @@ function authCreateAccountWithEmail() {
     createUserWithEmailAndPassword(auth, email, password)
         .then((userCredential) => {
             clearAuthFields()
-            showLoggedInView()
         })
         .catch((error) => {
-            console.error(error.message)
+            console.error(error.message) 
         })
 }
 
 function authSignOut() {
-    
-    signOut(auth).then(() => {
-        showLoggedOutView()
-    }).catch((error) => {
-        console.error(error.message)
-    });
+    signOut(auth)
+        .then(() => {
+        }).catch((error) => {
+            console.error(error.message)
+        })
 }
-/* == Functions - UI Functions == */
 
+/* == Functions - UI Functions == */
 
 function showLoggedOutView() {
     hideView(viewLoggedIn)
@@ -107,7 +120,7 @@ function showLoggedInView() {
 }
 
 function showView(view) {
-    view.style.display = "flex"
+    view.style.display = "flex" 
 }
 
 function hideView(view) {
